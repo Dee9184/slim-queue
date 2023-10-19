@@ -1,42 +1,49 @@
-# Slim Framework 4 Skeleton Application
+# SMS Queue (SLIM + Beanstalkd)
 
-[![Coverage Status](https://coveralls.io/repos/github/slimphp/Slim-Skeleton/badge.svg?branch=master)](https://coveralls.io/github/slimphp/Slim-Skeleton?branch=master)
 
-Use this skeleton application to quickly setup and start working on a new Slim Framework 4 application. This application uses the latest Slim 4 with Slim PSR-7 implementation and PHP-DI container implementation. It also uses the Monolog logger.
+Go to the project folder and run these commands : 
+1. composer start
+2. beanstalkd
 
-This skeleton application was built for Composer. This makes setting up a new Slim Framework application quick and easy.
 
-## Install the Application
+These are the API created :
 
-Run this command from the directory in which you want to install your new Slim Framework application. You will require PHP 7.4 or newer.
-
+1. HTTP API to insert an SMS Message in the queue
 ```bash
-composer create-project slim/slim-skeleton [my-app-name]
+curl --location --request POST 'http://localhost:8080/sms' \
+--header 'Content-Type: application/json' \
+--data '{
+    "data":[
+        {
+            "sms" : "This is sending first message",
+            "phone_no" : "01132123221"
+        },
+        {
+            "sms" : "This is 2nd message",
+            "phone_no" : "01987212312"
+        },
+        {
+            "sms" : "This is third message",
+            "phone_no" : "01987212312"
+        }
+    ]
+}'
 ```
 
-Replace `[my-app-name]` with the desired directory name for your new application. You'll want to:
 
-* Point your virtual host document root to your new application's `public/` directory.
-* Ensure `logs/` is web writable.
-
-To run the application in development, you can run these commands 
-
+2. HTTP API to consume an SMS Message from the queue and returns it in JSON format (FIFO)
 ```bash
-cd [my-app-name]
-composer start
+curl --location --request GET 'http://localhost:8080/sms'
 ```
 
-Or you can use `docker-compose` to run the app with `docker`, so you can run these commands:
+3. HTTP API to get the total number of messages in the queue 
 ```bash
-cd [my-app-name]
-docker-compose up -d
-```
-After that, open `http://localhost:8080` in your browser.
-
-Run this command in the application directory to run the test suite
-
-```bash
-composer test
+curl --location --request GET 'http://localhost:8080/sms/count'
 ```
 
-That's it! Now go build something cool.
+4. HTTP API to get all SMS messages in the queue in JSON format
+```
+curl --location --request GET 'http://localhost:8080/sms/all'
+```
+
+
